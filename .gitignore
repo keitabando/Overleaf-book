@@ -1,0 +1,14 @@
+*.bak
+*.aux
+*.gz
+*.dvi
+*.zip
+mail.txt
+work/
+test/
+desktop.ini
+ORG/
+差替え分/
+差替分/
+参考/
+readme.md

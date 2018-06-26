@@ -1,0 +1,738 @@
+\RequirePackage{xparse}
+\RequirePackage{helvet}
+\RequirePackage{tcolorbox}
+\tcbuselibrary{skins,breakable,xparse}
+\RequirePackage[deluxe,scale=1]{otf}
+\RequirePackage[
+\if@overleaf ipaex,\else
+Hiraginoset,mcl*=A-OTF-ShinGoPr6N-Light.otf
+\fi,
+]{KBDaddjfont}
+
+\newlength\KBfullwidth
+\newlength\KB@marginwidth
+\newlength\KB@sidemargin
+\newlength\KB@textwidth@save
+\newlength\KB@oddsidemargin@save
+\newlength\KB@evensidemargin@save
+
+
+
+\settowidth{\dimen0}{\hbox{\footnotesize\char\euc"A1A1}}
+%% 傍注の行長
+\setlength{\marginparwidth}{12\dimen0}
+%% 傍注と本文の距離
+\setlength{\marginparsep}{5mm}
+%% \KBfullwidth＝版面最大WIDTHの値
+\setlength{\KB@marginwidth}{\dimexpr(\marginparwidth+\marginparsep)\relax}
+\addtolength{\KBfullwidth}{\dimexpr(\textwidth+\KB@marginwidth)\relax}
+%% Margin width
+\setlength{\KB@sidemargin}{\dimexpr(\paperwidth-\KBfullwidth)/2\relax}
+%% \oddsidemargin, \evensidemargin
+\setlength{\oddsidemargin}{\dimexpr(\paperwidth-\KBfullwidth)/2-1in\relax}
+\setlength{\evensidemargin}{\dimexpr(\oddsidemargin+\KB@marginwidth)\relax}
+%% 本文体裁の保存
+\setlength{\KB@textwidth@save}{\textwidth}
+\setlength{\KB@oddsidemargin@save}{\oddsidemargin}
+\setlength{\KB@evensidemargin@save}{\evensidemargin}
+
+
+%% 前付の体裁
+\renewcommand\frontmatter{%
+  \if@openright \cleardoublepage \else \clearpage \fi
+  \pagestyle{Oneheadings}
+  \setlength{\global\hsize}{\KBfullwidth}
+  \setlength{\global\textwidth}{\hsize}
+  \setlength{\global\columnwidth}{\textwidth}
+  \setlength{\global\oddsidemargin}{\dimexpr(\paperwidth-\KBfullwidth)/2-1in\relax}
+  \setlength{\global\evensidemargin}{\oddsidemargin}
+  \@mainmatterfalse\pagenumbering{roman}}
+%% 本文の体裁
+\renewcommand{\mainmatter}{%
+  \if@openright \cleardoublepage \else \clearpage \fi
+\pagestyle{headings}
+  \setlength{\global\hsize}{\KB@textwidth@save}
+  \setlength{\global\textwidth}{\hsize}
+  \setlength{\global\columnwidth}{\textwidth}
+  \setlength{\global\oddsidemargin}{\KB@oddsidemargin@save}
+  \setlength{\global\evensidemargin}{\KB@evensidemargin@save}
+  \@mainmattertrue\pagenumbering{arabic}}
+%% 後付の体裁
+\renewcommand{\backmatter}{%
+  \if@openright \cleardoublepage \else \clearpage \fi
+  \pagestyle{Oneheadings}
+  \setlength{\global\hsize}{\KBfullwidth}
+  \setlength{\global\textwidth}{\hsize}
+  \setlength{\global\columnwidth}{\textwidth}
+  \setlength{\global\oddsidemargin}{\dimexpr(\paperwidth-\KBfullwidth)/2-1in\relax}
+  \setlength{\global\evensidemargin}{\oddsidemargin}
+  \@mainmatterfalse}
+
+
+\def\whwood#1{\@tempcnta#1\relax
+\loop\ifnum\@tempcnta>\z@\advance\@tempcnta -1\relax
+□\repeat
+}
+
+\newdimen\@KB@tmp@a\newdimen\@KB@tmp@b
+\def\KB@Set@Pic@Unit#1#2{\setlength{\global\@KB@tmp@a}{#2}%
+\expandafter\edef\csname #1\endcsname{\strip@pt\@KB@tmp@a}}
+%% 
+\def\KB@Add@Pic@Unit#1#2{%\KB@Set@Pic@Unitの直下が必須
+\addtolength{\@KB@tmp@a}{#2}%
+\expandafter\edef\csname #1\endcsname{\strip@pt\@KB@tmp@a}}
+
+
+%% 本文側の柱
+\newtcbox{\HeadboxL}[1][]{on line,arc=2pt,
+colback=gray!50,colframe=gray!50,
+left=10mm,right=2mm,top=-2pt,bottom=-2pt,#1}
+
+\newtcbox{\HeadboxR}[1][]{on line,arc=2pt,
+colback=gray!50,colframe=gray!50,
+left=2mm,right=10mm,top=-2pt,bottom=-2pt,#1}
+
+\newdimen\KB@head@ShadeBox@width
+\setbox2\hbox{\HeadboxR{\vbox{\hsize1zw\hbox{\@chapapp}}}}%
+\setlength{\KB@head@ShadeBox@width}{\wd2}
+
+%% 偶数ページの柱の X Shift量
+\KB@Set@Pic@Unit{KB@Pic@Head@H@Shift@r}{\dimexpr(\KB@head@ShadeBox@width+2mm)}
+
+%% 奇数ページの柱の X -のShift量
+\KB@Set@Pic@Unit{KB@Pic@Head@H@Shift@l}{\dimexpr(\textwidth+\KB@marginwidth+2mm)\relax}%%
+
+
+%% 一段の奇数ページの柱の X -のShift量
+\KB@Set@Pic@Unit{KB@Pic@Head@H@Shift@l@One}{\dimexpr(\KBfullwidth+2mm)\relax}%%
+
+
+%% \section 書体
+\DeclareRobustCommand*\KBsectionfont{\reset@font\fontsize{20Q}{25H}\gtb}
+\DeclareRobustCommand*\KBsectionnumfont{\reset@font\fontsize{20Q}{25H}\gtb}
+%% \marginpar 書体
+\DeclareRobustCommand*\KBmarginparfont{\reset@font\mcl\footnotesize}
+
+%% 
+\def\KB@Head@Font{\gtb}
+%% ノンブル書体
+\def\KB@Page@Font{\sffamily}
+%% 版面下部とノンブル罫の距離
+\def\thepagesep{5mm}
+\newskip\KB@Header@Vsep
+%% 柱の下へのシフト量
+\KB@Header@Vsep=0mm
+
+\setlength\footskip{0pt}
+\def\ps@headings{\let\ps@jpl@in\ps@headnombre
+    \def\@oddfoot{%%\hbadness10000%
+    \hb@xt@\z@{%
+    \hspace{\dimexpr(\textwidth+\KB@marginwidth+2mm)\relax}% 奇数ノンブルの横位置要調整
+    \vbox{\hsize=20mm
+       \hrule height.4pt\vskip2mm
+       \KB@Page@Font\thepage\vss}%
+       \hss}}
+    \def\@evenfoot{\hspace{-\dimexpr(\KB@marginwidth+20mm+2mm)\relax}% 偶数ノンブルの横位置要調整
+    \leavevmode\hbox{\vbox{\hsize=20mm
+       \hrule height.4pt\vskip2mm
+       \hfill\KB@Page@Font\thepage\vss}%
+        \hss}}
+    \KB@Set@Pic@Unit{KB@Pic@Head@V@Shift}{\dimexpr(\headsep)\relax}%
+                    \KB@Add@Pic@Unit{KB@Pic@Head@V@Shift}{\KB@Header@Vsep}% 
+     \def\@evenhead{%
+     \hskip-\KB@marginwidth
+     \begin{picture}(0,0)\put%
+       (-\KB@Pic@Head@H@Shift@r,-\KB@Pic@Head@V@Shift)%
+       {\leftmark}%
+     \end{picture}%
+       \vbox to\headheight{\vss\hsize\KBfullwidth%
+       \hbox to\KBfullwidth{\ifnum \c@secnumdepth >\m@ne
+       \if@mainmatter\KB@Head@Font
+       \@chapapp\hbox{\scalebox{1.5}{\thechapter}\@chappos}\fi
+       \fi\hfil}\vskip1mm
+       \hrule width\KBfullwidth height.4pt
+       }%
+       \hss
+}%
+    \def\@oddhead{%
+     \begin{picture}(0,0)\put%
+       (\KB@Pic@Head@H@Shift@l,-\KB@Pic@Head@V@Shift)
+       {\TTTT}%
+     \end{picture}%
+    \vbox to\headheight{\vss\hsize\KBfullwidth
+    \hbox to\KBfullwidth{\hfil%
+    \textbf{\rightmark}}%
+    \vskip1mm\hrule height.4pt%
+    }\hss}%
+%    \let\@oddhead\@empty
+%    \let\@evenhead\@empty
+%    \let\@evenfoot\@empty
+%    \let\@oddfoot\@empty
+    \let\@mkboth\markboth
+\def\KB@Chaper{}
+\def\chaptermark##1{\gdef\KB@Chaper{##1}\markboth{%
+\setbox2\hbox{\HeadboxL{\vbox{\hsize1zw\sffamily
+\hfil\@chapapp\hfil\vskip0pt\hfil\thechapter\hfil\vskip0pt\hfil\@chappos\hfil}}}%
+\vbox to0pt{\hsize=\wd2\vskip0pt
+\hfill\hbox{\sffamily\tate\tbaselineshift=.9mm\lower5.2mm\hbox{##1}}\hskip.55zw\null%
+     \ifnum \c@secnumdepth >\m@ne
+         \if@mainmatter
+         \HeadboxL{\vbox{\hsize1zw\sffamily
+         \hfil\@chapapp\hfil\vskip\xkanjiskip
+         \hfil\hbox to0zw{\KB@Head@Font\hss\protect\scalebox{1.5}{\thechapter}\hss}\hfil\vskip\xkanjiskip\hfil\@chappos\hfil\vss}}
+         \fi
+     \fi
+     \vss}}{}}%
+\def\TTTT{}
+\def\sectionmark##1{\gdef\TTTT{%
+\setbox2\hbox{\HeadboxR{\vbox{\hsize1zw\bfseries
+\hfil\@chapapp\hfil\vskip0pt\hfil\thechapter\hfil\vskip0pt\hfil\@chappos\hfil}}}%
+\vbox to0pt{\hsize=\wd2\vskip0pt
+\null\hskip.55zw\hbox{\sffamily\tate\tbaselineshift=.9mm\lower-3mm\hbox{\KB@Chaper}}\hfill
+     \ifnum \c@secnumdepth >\m@ne
+         \if@mainmatter
+         \HeadboxR{\vbox{\hsize1zw\sffamily
+         \hfil\@chapapp\hfil\vskip\xkanjiskip
+         \hfil\hbox to0pt{\KB@Head@Font\hss\scalebox{1.5}{\thechapter}\hss}\hfil\vskip\xkanjiskip\hfil\@chappos\hfil\vss}}%
+         \fi
+     \fi
+     \vss}}%
+\markright{%
+     \ifnum \c@secnumdepth >\z@
+           \ifseccntfixHead\@seccnt@prefix@section\fi%
+              \thesection%
+           \ifseccntfixHead\@seccnt@postfix@section\fi%
+\hskip1zw%
+\fi
+     \protect\@inhibitglue##1}}%
+}
+
+\def\ps@Oneheadings{\let\ps@jpl@in\ps@headnombre
+    \def\@oddfoot{%%\hbadness10000%
+    \hb@xt@\z@{%
+    \hspace{\dimexpr(\KBfullwidth+2mm)\relax}% 奇数ノンブルの横位置要調整
+    \vbox{\hsize=20mm
+       \hrule height.4pt\vskip2mm
+       \KB@Page@Font\thepage\vss}%
+       \hss}}
+    \def\@evenfoot{%
+    \hspace{-\dimexpr(20mm+2mm)\relax}% 偶数ノンブルの横位置要調整
+    \leavevmode\hbox{\vbox{\hsize=20mm
+       \hrule height.4pt\vskip2mm
+       \hfill\KB@Page@Font\thepage\vss}%
+        \hss}}
+    \KB@Set@Pic@Unit{KB@Pic@Head@V@Shift}{\dimexpr(\headsep)\relax}%
+                    \KB@Add@Pic@Unit{KB@Pic@Head@V@Shift}{\KB@Header@Vsep}% 
+     \def\@evenhead{%
+     %\hskip-\KB@marginwidth
+     \begin{picture}(0,0)\put%
+       (-\KB@Pic@Head@H@Shift@r,-\KB@Pic@Head@V@Shift)%
+       {\leftmark}%
+     \end{picture}%
+       \vbox to\headheight{\vss\hsize\KBfullwidth%
+       \hbox to\KBfullwidth{\ifnum \c@secnumdepth >\m@ne
+       \if@mainmatter\KB@Head@Font
+       \@chapapp\hbox{\scalebox{1.5}{\thechapter}\@chappos}\fi
+       \fi\hfil}\vskip1mm
+       \hrule width\KBfullwidth height.4pt
+       }%
+       \hss
+}%
+    \def\@oddhead{%
+     \begin{picture}(0,0)\put%
+       (\KB@Pic@Head@H@Shift@l@One,-\KB@Pic@Head@V@Shift)
+       {\TTTT}%
+     \end{picture}%
+    \vbox to\headheight{\vss\hsize\KBfullwidth
+    \hbox to\KBfullwidth{\hfil%
+    \textbf{\rightmark}}%
+    \vskip1mm\hrule height.4pt%
+    }\hss}%
+%    \let\@oddhead\@empty
+%    \let\@evenhead\@empty
+%    \let\@evenfoot\@empty
+%    \let\@oddfoot\@empty
+    \let\@mkboth\markboth
+%\def\KB@Chaper{}
+\def\chaptermark##1{\gdef\KB@Chaper{##1}\markboth{%
+\setbox2\hbox{\HeadboxL{\vbox{\hsize1zw\sffamily
+\hfil\@chapapp\hfil\vskip0pt\hfil\thechapter\hfil\vskip0pt\hfil\@chappos\hfil}}}%
+\vbox to0pt{\hsize=\wd2\vskip0pt
+\hfill\hbox{\sffamily\tate\tbaselineshift=.9mm\lower5.2mm\hbox{##1}}\hskip.55zw\null%
+     \ifnum \c@secnumdepth >\m@ne
+         \if@mainmatter
+         \HeadboxL{\vbox{\hsize1zw\sffamily
+         \hfil\@chapapp\hfil\vskip\xkanjiskip
+         \hfil\hbox to0zw{\KB@Head@Font\hss\protect\scalebox{1.5}{\thechapter}\hss}\hfil\vskip\xkanjiskip\hfil\@chappos\hfil\vss}}
+         \fi
+     \fi
+     \vss}}{}}%
+%\def\TTTT{}
+\def\sectionmark##1{\gdef\TTTT{%
+\setbox2\hbox{\HeadboxR{\vbox{\hsize1zw\bfseries
+\hfil\@chapapp\hfil\vskip0pt\hfil\thechapter\hfil\vskip0pt\hfil\@chappos\hfil}}}%
+\vbox to0pt{\hsize=\wd2\vskip0pt
+\null\hskip.55zw\hbox{\sffamily\tate\tbaselineshift=.9mm\lower-3mm\hbox{\KB@Chaper}}\hfill
+     \ifnum \c@secnumdepth >\m@ne
+         \if@mainmatter
+         \HeadboxR{\vbox{\hsize1zw\sffamily
+         \hfil\@chapapp\hfil\vskip\xkanjiskip
+         \hfil\hbox to0pt{\KB@Head@Font\hss\scalebox{1.5}{\thechapter}\hss}\hfil\vskip\xkanjiskip\hfil\@chappos\hfil\vss}}%
+         \fi
+     \fi
+     \vss}}%
+\markright{%
+     \ifnum \c@secnumdepth >\z@
+           \ifseccntfixHead\@seccnt@prefix@section\fi%
+              \thesection%
+           \ifseccntfixHead\@seccnt@postfix@section\fi%
+\hskip1zw%
+\fi
+     \protect\@inhibitglue##1}}%
+}
+
+%%% 章タイトル
+\def\ps@titleheadings{\let\ps@jpl@in\ps@headnombre
+    \def\@oddfoot{%%\hbadness10000%
+    \hb@xt@\z@{%
+    \hspace{\dimexpr(\textwidth+\KB@marginwidth+2mm)\relax}% 奇数ノンブルの横位置要調整
+    \vbox{\hsize=20mm
+       \hrule height.4pt\vskip2mm
+       \KB@Page@Font\thepage\vss}%
+       \hss}}
+    \def\@evenfoot{\hspace{-\dimexpr(\KB@marginwidth+20mm+2mm)\relax}% 偶数ノンブルの横位置要調整
+    \leavevmode\hbox{\vbox{\hsize=20mm
+       \hrule height.4pt\vskip2mm
+       \hfill\KB@Page@Font\thepage\vss}%
+        \hss}}
+    \KB@Set@Pic@Unit{KB@Pic@Head@V@Shift}{\dimexpr(\headsep)\relax}%
+                    \KB@Add@Pic@Unit{KB@Pic@Head@V@Shift}{\KB@Header@Vsep}% 
+    \let\@oddhead\@empty
+    \let\@evenhead\@empty
+%    \let\@evenfoot\@empty
+%    \let\@oddfoot\@empty
+    \let\@mkboth\markboth
+}
+%%% 
+\def\ps@titleheadingsI{\let\ps@jpl@in\ps@headnombre
+    \def\@oddfoot{%%\hbadness10000%
+    \hb@xt@\z@{%
+    \hspace{\dimexpr(\KBfullwidth+2mm)\relax}% 奇数ノンブルの横位置要調整
+    \vbox{\hsize=20mm
+       \hrule height.4pt\vskip2mm
+       \KB@Page@Font\thepage\vss}%
+       \hss}}
+    \def\@evenfoot{%
+    \hspace{-\dimexpr(20mm+2mm)\relax}% 偶数ノンブルの横位置要調整
+    \leavevmode\hbox{\vbox{\hsize=20mm
+       \hrule height.4pt\vskip2mm
+       \hfill\KB@Page@Font\thepage\vss}%
+        \hss}}
+    \KB@Set@Pic@Unit{KB@Pic@Head@V@Shift}{\dimexpr(\headsep)\relax}%
+                    \KB@Add@Pic@Unit{KB@Pic@Head@V@Shift}{\KB@Header@Vsep}% 
+    \let\@oddhead\@empty
+    \let\@evenhead\@empty
+%    \let\@evenfoot\@empty
+%    \let\@oddfoot\@empty
+    \let\@mkboth\markboth
+%\def\KB@Chaper{}
+\def\chaptermark##1{\gdef\KB@Chaper{##1}\markboth{%
+\setbox2\hbox{\HeadboxL{\vbox{\hsize1zw\sffamily
+\hfil\@chapapp\hfil\vskip0pt\hfil\thechapter\hfil\vskip0pt\hfil\@chappos\hfil}}}%
+\vbox to0pt{\hsize=\wd2\vskip0pt
+\hfill\hbox{\sffamily\tate\tbaselineshift=.9mm\lower5.2mm\hbox{##1}}\hskip.55zw\null%
+     \ifnum \c@secnumdepth >\m@ne
+         \if@mainmatter
+         \HeadboxL{\vbox{\hsize1zw\sffamily
+         \hfil\@chapapp\hfil\vskip\xkanjiskip
+         \hfil\hbox to0zw{\KB@Head@Font\hss\protect\scalebox{1.5}{\thechapter}\hss}\hfil\vskip\xkanjiskip\hfil\@chappos\hfil\vss}}
+         \fi
+     \fi
+     \vss}}{}}%
+%\def\TTTT{}
+\def\sectionmark##1{\gdef\TTTT{%
+\setbox2\hbox{\HeadboxR{\vbox{\hsize1zw\bfseries
+\hfil\@chapapp\hfil\vskip0pt\hfil\thechapter\hfil\vskip0pt\hfil\@chappos\hfil}}}%
+\vbox to0pt{\hsize=\wd2\vskip0pt
+\null\hskip.55zw\hbox{\sffamily\tate\tbaselineshift=.9mm\lower-3mm\hbox{\KB@Chaper}}\hfill
+     \ifnum \c@secnumdepth >\m@ne
+         \if@mainmatter
+         \HeadboxR{\vbox{\hsize1zw\sffamily
+         \hfil\@chapapp\hfil\vskip\xkanjiskip
+         \hfil\hbox to0pt{\KB@Head@Font\hss\scalebox{1.5}{\thechapter}\hss}\hfil\vskip\xkanjiskip\hfil\@chappos\hfil\vss}}%
+         \fi
+     \fi
+     \vss}}%
+\markright{%
+     \ifnum \c@secnumdepth >\z@
+           \ifseccntfixHead\@seccnt@prefix@section\fi%
+              \thesection%
+           \ifseccntfixHead\@seccnt@postfix@section\fi%
+\hskip1zw%
+\fi
+     \protect\@inhibitglue##1}}%
+}
+
+\pagestyle{headings}
+
+%% 傍注のマーク
+\def\@marginparmark{\text{\textcolor[gray]{0.5}{\rotatebox[origin=c]{-90}{▲}}}}
+%% カウンタを使う
+%\newcounter{marginparcnt}[chapter]
+%\renewcommand{\themarginparcnt}{\arabic{marginparcnt}}
+%\def\@marginparmark{\reset@font\themarginparcnt)}
+
+\def\marginpar{%
+  \ifhmode
+    \@bsphack
+    \@floatpenalty -\@Mii
+  \else
+    \@floatpenalty-\@Miii
+  \fi
+  \ifinner
+    \@parmoderr
+    \@floatpenalty\z@
+  \else
+    \@next\@currbox\@freelist{}{}%
+    \@next\@marbox\@freelist{\global\count\@marbox\m@ne}%
+       {\@floatpenalty\z@
+        \@fltovf\def\@currbox{\@tempboxa}\def\@marbox{\@tempboxa}}%
+  \fi
+  \@ifnextchar [\@xmpar\@ympar}
+
+\def\@marginparreset{\reset@font\KBmarginparfont\@setminipage}
+
+
+
+\newdimen\marginpargap
+\marginpargap0pt%% \marginparの縦のシフト
+
+\long\def\@savemarbox#1#2{%
+   \global\setbox#1%
+      \color@vbox
+      \normalcolor%% \textcolor実行時に\marginparに`color'が及ばないように．
+      \vtop{%
+         \hsize\marginparwidth
+         \@parboxrestore
+         \@marginparreset\vskip-1zh\vskip\marginpargap
+         \@marginparmark
+         #2%
+         \@minipagefalse
+         \outer@nobreak}%
+    \color@endbox}
+
+\let\KB@save@marginpar\marginpar
+
+%% \marginpar<SKIP>{TEXT}
+\RenewDocumentCommand\marginpar{D<>{0pt}}{\setlength{\marginpargap}{#1}%
+\@ifundefined{themarginparcnt}{}{\refstepcounter{marginparcnt}}%
+  {\skip@\lastskip\@tempswatrue
+   \ifdim\skip@>.225zw \ifdim\skip@<.275zw \@tempswafalse\fi\fi
+   \if@tempswa\unskip\kern\z@\fi}%
+   \nobreak\ensuremath{^{\@marginparmark}}\KB@save@marginpar}
+
+%% \marginparmark[num]%% \marginparmark[setcounter]
+\NewDocumentCommand\marginparmark{o}{%
+\@ifundefined{themarginparcnt}{}{%
+\IfValueTF{#1}{\setcounter{marginparcnt}{#1}}{\refstepcounter{marginparcnt}}}%
+  {\skip@\lastskip\@tempswatrue
+   \ifdim\skip@>.225zw \ifdim\skip@<.275zw \@tempswafalse\fi\fi
+   \if@tempswa\unskip\kern\z@\fi}%
+   \nobreak\ensuremath{^{\@marginparmark}}}
+
+
+\NewDocumentCommand\marginpartext{o D<>{0pt}}{\setlength{\marginpargap}{#2}%
+\@ifundefined{themarginparcnt}{}{%
+\IfValueTF{#1}{\setcounter{marginparcnt}{#1}}{\refstepcounter{marginparcnt}}}%
+\KB@save@marginpar}
+
+
+
+
+\newif\if@SubChapterHead
+%% \chapter*[#2]<#3>{#4}
+\RenewDocumentCommand\chapter{s o d<> m }{%
+\if@openright\cleardoublepage\else\clearpage\fi
+\thispagestyle{titleheadings}\global\@topnum\z@\relax
+\global\advance\@chapterid\@ne% for multicite.sty, multilabel.sty
+\xdef\@ref@prefix{refPrefixID\the\@chapterid:}\@afterindenttrue
+%%% 
+\IfValueTF{#3}{%
+     \@SubChapterHeadtrue\def\SubChapterHead{#3}%
+     }{%
+     \@SubChapterHeadfalse\def\SubChapterHead{}%
+      }%
+\IfValueTF{#2}%
+     {\def\kb@tmp@worda{#2}}%
+     {\def\kb@tmp@worda{#4}}%
+\IfBooleanTF{#1}%
+     {\@schapter{#4}}%
+     {\@chapter[\kb@tmp@worda]{#4}}%
+}
+
+\def\@chapter[#1]#2{%
+  \ifnum \c@secnumdepth >\m@ne
+    \if@mainmatter
+    \refstepcounter{chapter}%
+    \typeout{\@chapapp\space\thechapter\space\@chappos}%
+    \addcontentsline{toc}{chapter}%
+	     {\protect\numberline{\@chapapp\thechapter\@chappos}#1}%
+    \else\addcontentsline{toc}{chapter}{#1}\fi
+	 \else
+    \addcontentsline{toc}{chapter}{#1}%
+  \fi
+  \chaptermark{#1}%
+  \addtocontents{lot}{\protect\addvspace{10\p@}}%
+\if@appendix@@
+  \@make@appendix@chapterhead{#2}%%\@appendix@@false
+  \else
+  \@makechapterhead{#2}%
+  \fi
+\@afterheading}
+
+\def\@schapter#1{%
+\if@table@of@contents@@
+   \@make@toc@chapterhead{#1}\@table@of@contents@@false\else
+      \if@the@bibliography@@
+         \@make@bib@chapterhead{#1}\@the@bibliography@@false\else
+                   \@makeschapterhead{#1}\fi\fi
+\markboth{#1}{}\@afterheading
+}
+
+\newlength\KB@c@b
+\def\@chapapp{}
+\DeclareRobustCommand\KBchapterfont{\fontsize{26.4Q}{26H}\gtb}
+\DeclareRobustCommand\KBSubchapterfont{\normalfont\fontsize{20.4Q}{26H}\sffamily}
+\newlength\KB@c@textw
+\newdimen\KB@c@t@sep\setlength{\KB@c@t@sep}{1zw}
+\def\@makechapterhead#1{{\parindent\z@%
+\toplinebox{5}{%
+\ifnum \c@secnumdepth >\m@ne
+     \setlength\@tempdima{\linewidth}%
+    \if@mainmatter
+     \settowidth{\KB@c@b}{\KBchapterfont\@chapapp\thechapter\@chappos\hskip\KB@c@t@sep\hskip.5zw}%
+     \setlength{\KB@c@textw}{\dimexpr(\textwidth-\KB@c@b)\relax}%
+         $\vcenter to3\baselineskip{\hsize\KB@c@b\vss%
+         \hbox{\KBchapterfont\@chapapp\thechapter\@chappos}\vss}$\hfill
+     \else\KB@c@textw\textwidth	
+      \hbox{}%
+    \fi
+     $\vcenter to3\baselineskip{\hsize=\KB@c@textw\vss
+     \KBchapterfont#1\if@SubChapterHead\vskip0pt\KBSubchapterfont
+      \SubChapterHead\fi\vss
+      }$
+     \par\vfill\fi}}%
+}
+\let\@make@appendix@chapterhead\@makechapterhead
+
+
+\renewcommand{\tableofcontents}{%
+\if@openright\cleardoublepage\else\clearpage\fi
+\thispagestyle{titleheadingsI}%
+\setbox0\hbox{%
+\fontsize{15Q}{15Q}\selectfont\LaTeX 入門--Overleafで簡単に文章作成\hskip.5zw●目次\hskip.5zw}%
+\setlength{\dimen1}{\dimexpr(\textwidth-\wd0)\relax}
+\hbox to\KBfullwidth{%
+\raisebox{.2zh}{\box0}\textcolor[gray]{.7}{\rule{\dimen1}{5mm}}}%
+\@mkboth{}{\contentsname}\fontsize{12Q}{21Q}\selectfont\@starttoc{toc}\normalsize}
+
+\renewcommand*{\l@chapter}[2]{%
+  \ifnum \c@tocdepth >\m@ne
+    \addpenalty{-\@highpenalty}%
+    \addvspace{14pt\@plus1pt}%
+    \begingroup
+\def\@pnumwidth{1.5em}%
+      \parindent\z@ \rightskip\@pnumwidth \parfillskip-\rightskip
+      \leavevmode\@@TocChapterFont
+      \setlength\@lnumwidth{4zw}%
+      \advance\leftskip\@lnumwidth \hskip-\leftskip
+      #1\nobreak\leaders\hbox{$\m@th \mkern \@dotsep mu\hbox{・}\mkern \@dotsep
+       mu$}\hfill \nobreak\@@TocNumChapterFont\hbox to\@pnumwidth{\hss#2}\par
+      \penalty\@M%\@highpenalty
+    \endgroup
+  \fi}
+
+\newif\if@KB@sec@a
+
+\KBheadinggap[1\Cht]{section}{3}
+\newcommand\@make@section@head[3]{%
+\bgroup
+       \noindent#2\hskip#1\relax
+       \setbox\z@\hbox{\@svsec}%
+       \@tempdima\linewidth\advance\@tempdima-\wd\z@
+       \advance\@tempdima-#1\relax
+       \setbox\tw@\hbox{#3}%
+       \dp\z@\z@
+       \underline{\parbox[t]{\textwidth}{\unhbox\z@% ここが\thesectionの出力
+          \ifdim\wd\tw@>\@tempdima\@KB@sec@atrue%% タイトルが折り返す場合
+               \vtop{\hsize=\@tempdima\@parboxrestore\unhbox\tw@\@@par}
+               \else\@KB@sec@afalse%% タイトルが折り返さない場合．
+               \@inhibitglue\unhbox\tw@
+          \fi}}\if@KB@sec@a\par\noindent\fi
+       \advance\@tempdima\wd\z@
+\egroup
+}
+
+
+%% ラウンド罫
+\DeclareTColorBox{Screen}{O{}}{breakable,empty,borderline={0.2mm}{0pt}{black},arc=10pt,before skip={.5\baselineskip},after skip={.5\baselineskip},%
+  left=1zw,right=1zw,top=.5zw,bottom=.5zw,middle=0mm,#1}
+%% 枠囲み
+\DeclareTColorBox{Linebox}{O{}}{breakable,empty,borderline={0.2mm}{0pt}{black},arc=0pt,before skip={.5\baselineskip},after skip={.5\baselineskip},%
+  left=1zw,right=1zw,top=.5zw,bottom=.5zw,middle=1mm,#1}
+
+
+
+\if@twocolumn
+  \setlength\leftmargini {3zw}
+\else
+  \setlength\leftmargini {3zw}%% 3zw -> 2zw
+\fi
+\setlength\leftmarginii  {3zw}
+\setlength\leftmarginiii {2zw}
+\setlength\leftmarginiv  {2zw}
+\if@twocolumn
+  \setlength\leftmarginv {1zw}
+  \setlength\leftmarginvi{1zw}
+\else
+  \setlength\leftmarginv {1zw}
+  \setlength\leftmarginvi{1zw}
+\fi
+\labelsep1zw
+
+\def\@listi{\leftmargin\leftmargini\labelwidth\leftmargini\advance\labelwidth-\labelsep\parsep\z@\topsep\z@\itemsep\z@}
+\let\@listI\@listi
+\@listi
+\def\@listii{\leftmargin\leftmarginii\labelwidth\leftmarginii\advance\labelwidth-\labelsep\topsep\z@\parsep\z@\itemsep\parsep}
+\def\@listiii{\leftmargin\leftmarginiii
+   \labelwidth\leftmarginiii \advance\labelwidth-\labelsep\topsep\z@\parsep\z@
+   \partopsep\z@\itemsep\topsep}
+\def\@listiv {\leftmargin\leftmarginiv
+              \labelwidth\leftmarginiv
+              \advance\labelwidth-\labelsep}
+\def\@listv  {\leftmargin\leftmarginv
+              \labelwidth\leftmarginv
+              \advance\labelwidth-\labelsep}
+\def\@listvi {\leftmargin\leftmarginvi
+              \labelwidth\leftmarginvi
+              \advance\labelwidth-\labelsep}
+
+
+\renewcommand{\theenumi}{\@arabic\c@enumi}
+\renewcommand{\theenumii}{\@alph\c@enumii}
+\renewcommand{\theenumiii}{\@roman\c@enumiii}
+\renewcommand{\theenumiv}{\@Alph\c@enumiv}
+\renewcommand{\labelenumi}{(\theenumi)}
+\renewcommand{\labelenumii}{\theenumii.}
+\renewcommand{\labelenumiii}{\theenumiii.}
+\renewcommand{\labelenumiv}{\theenumiv.}
+\renewcommand{\p@enumii}{(\theenumi)}
+%\renewcommand{\p@enumiii}{\theenumi(\theenumii)}
+%\renewcommand{\p@enumiv}{\p@enumiii\theenumiii}
+\renewenvironment{enumerate}
+  {\ifnum \@enumdepth >3\relax\@toodeep\else
+   \advance\@enumdepth\@ne
+   \edef\@enumctr{enum\romannumeral\the\@enumdepth}%
+   \list{\csname label\@enumctr\endcsname}{%
+         \parskip\z@\itemsep\z@ \parsep\z@
+         \labelsep1zw
+         \ifnum \@enumdepth=\@ne \leftmargin\leftmargini\relax
+           \else\leftmargin\leftskip\fi
+	 \labelwidth\leftmargin \advance\labelwidth -\labelsep
+         \usecounter{\@enumctr}%
+         \def\makelabel##1{\hss\llap{##1}}}%
+   \fi}{\endlist}
+
+
+\newenvironment{Maruenumerate}
+{%
+\renewcommand{\theenumi}{\ajLabel\ajMaru{enumi}}%
+\renewcommand{\theenumii}{\@arabic\c@enumii}
+\renewcommand{\theenumiii}{\@roman\c@enumiii}
+\renewcommand{\theenumiv}{\@Alph\c@enumiv}
+\renewcommand{\labelenumi}{\theenumi}
+\renewcommand{\labelenumii}{\theenumii.}
+\renewcommand{\labelenumiii}{\theenumiii.}
+\renewcommand{\labelenumiv}{\theenumiv.}
+\renewcommand{\p@enumii}{(\theenumi)}
+  \ifnum \@enumdepth >3\relax\@toodeep\else
+   \advance\@enumdepth\@ne
+   \edef\@enumctr{enum\romannumeral\the\@enumdepth}%
+   \list{\csname label\@enumctr\endcsname}{%
+         \parskip\z@\itemsep\z@ \parsep\z@
+         \labelsep1zw
+         \ifnum \@enumdepth=\@ne \leftmargin3zw\relax
+           \else\leftmargin\leftskip\fi
+         %%\advance\leftmargin 1zw
+	 \labelwidth\leftmargin \advance\labelwidth -\labelsep
+         \usecounter{\@enumctr}%
+         \def\makelabel##1{\hss\llap{##1}}}%
+   \fi}{\endlist}
+
+\renewenvironment{itemize}
+  {\ifnum \@itemdepth >3\relax\@toodeep\else
+   \advance\@itemdepth\@ne
+   \edef\@itemitem{labelitem\romannumeral\the\@itemdepth}%
+   \expandafter
+   \list{\csname \@itemitem\endcsname}{%
+   \labelsep\z@\labelwidth\leftmargin \advance\labelwidth -\labelsep
+         \def\makelabel##1{\hbox to\labelwidth{\hfil##1\hfil}}}%
+   \fi}{\endlist}
+
+
+
+\newenvironment{Column}{\clearpage
+\setlength{\hsize}{\KBfullwidth}%
+\setlength{\textwidth}{\hsize}%
+\setlength{\columnwidth}{\textwidth}%
+\setlength{\oddsidemargin}{\dimexpr(\paperwidth-\KBfullwidth)/2-1in\relax}%
+\setlength{\evensidemargin}{\oddsidemargin}%
+\pagestyle{Oneheadings}%
+  }{%
+  \clearpage
+  }
+
+
+\renewenvironment{theindex}
+  {\if@openright\cleardoublepage\else\clearpage\fi%
+   \if@twocolumn\@restonecolfalse\else\@restonecoltrue\fi
+   \columnseprule\z@ \columnsep 35\p@
+\@ifundefined{multicols}{\twocolumn[\@make@index@chapterhead{\indexname}]}{\begin{multicols}{2}[\@make@index@chapterhead{\indexname}]}
+   \@mkboth{\indexname}{\indexname}%
+\addcontentsline{toc}{chapter}{\indexname}
+   \thispagestyle{titleheadingsI}\parindent\z@
+   \parskip\z@ \@plus .3\p@\relax
+   \let\item\@idxitem\small}
+  {\if@restonecol
+\@ifundefined{multicols}{\onecolumn}{\end{multicols}}\else\clearpage\fi}
+
+\renewenvironment{thebibliography}[1]
+{\@the@bibliography@@true
+\chapter*{\bibname}
+\thispagestyle{titleheadingsI}
+\@mkboth{\bibname}{\bibname}
+\addcontentsline{toc}{chapter}{\bibname}
+   \list{\@biblabel{\@arabic\c@enumiv}}%
+        {\settowidth\labelwidth{\@biblabel{#1}}%
+         \leftmargin\labelwidth
+         \advance\leftmargin\labelsep
+         \@openbib@code
+         \usecounter{enumiv}%
+         \let\p@enumiv\@empty
+         \renewcommand\theenumiv{\@arabic\c@enumiv}\small}%
+   \sloppy
+   \clubpenalty4000
+   \@clubpenalty\clubpenalty
+   \widowpenalty4000%
+   \sfcode`\.\@m
+\lefthyphenmin=2\righthyphenmin=2%% ハイフネーションの条件を少し緩和
+\frenchspacing% 全体のspaceを均等に
+}
+  {\def\@noitemerr
+    {\@latex@warning{Empty `thebibliography' environment}}%
+\endlist}
+
+\endinput
+
+
+
